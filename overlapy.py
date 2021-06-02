@@ -8,12 +8,6 @@ __author__ = "Ruben Branco, Luís Gomes"
 __copyright__ = "copyright © 2021, Ruben Branco, Luís Gomes, all rights reserved"
 
 
-def get_percentile(values, percentile):
-    values.sort()
-    i = int(len(values) * percentile / 100)
-    return values[min(i, len(values) - 1)]
-
-
 class OverlapyTestSet:
     def __init__(self, name, min_n=8, max_n=13, percentile=5, examples=None):
         assert isinstance(min_n, int) and isinstance(max_n, int)
@@ -25,21 +19,24 @@ class OverlapyTestSet:
         self.percentile = percentile
         self.examples = examples or []
 
-    def add_example(self, *seqs):
-        self.examples.append(seqs)
+    def add_example(self, example):
+        self.examples.append(example)
 
-    def seqs(self):
-        for example in self.examples:
-            yield from example
+    @staticmethod
+    def get_percentile(values, percentile):
+        values.sort()
+        i = int(len(values) * percentile / 100)
+        return values[min(i, len(values) - 1)]
 
     def compute_n(self):
-        hist = sorted(map(len, self.seqs()))
-        return min(max(self.min_n, get_percentile(hist, self.percentile)), self.max_n)
+        hist = sorted(map(len, self.examples))
+        n = OverlapyTestSet.get_percentile(hist, self.percentile)
+        return min(max(self.min_n, n), self.max_n)
 
     def ngrams(self):
         n = self.compute_n()
-        for seq in self.seqs():
-            yield from all_ngrams(seq, minn=n, maxn=n)
+        for example in self.examples:
+            yield from all_ngrams(example, minn=n, maxn=n)
 
 
 class OverlapyNgramMatcher:

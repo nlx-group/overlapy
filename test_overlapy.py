@@ -15,10 +15,7 @@ def examples1():
 
 @pytest.fixture
 def ts1(examples1):
-    ts = OverlapyTestSet("ts1", min_n=1, max_n=1000, percentile=50)
-    for example in examples1:
-        ts.add_example(example)
-    return ts
+    return OverlapyTestSet("ts1", min_n=1, max_n=1000, percentile=50, examples=examples1)
 
 
 def test_compute_n(ts1):
