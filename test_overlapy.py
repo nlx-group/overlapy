@@ -1,6 +1,7 @@
 import pytest
 from overlapy import OverlapyNgramMatcher, OverlapyTestSet
 
+
 @pytest.fixture
 def examples1():
     return [
@@ -48,13 +49,9 @@ def test_compute_n(ts1):
 
 
 def test_unigrams(examples1, ts1):
-    unigrams = [
-        unigram
-        for example in examples1
-        for unigram in example
-    ]
-    ts1.min_n=1
-    ts1.max_n=1
+    unigrams = [unigram for example in examples1 for unigram in example]
+    ts1.min_n = 1
+    ts1.max_n = 1
     assert sorted(unigrams) == sorted(ts1.ngrams())
 
 
@@ -62,17 +59,15 @@ def test_bigrams(examples1, ts1):
     bigrams = [
         bigram
         for example in examples1
-        for bigram in map(''.join, zip(example[:-1], example[1:]))
+        for bigram in map("".join, zip(example[:-1], example[1:]))
     ]
-    ts1.min_n=2
-    ts1.max_n=2
+    ts1.min_n = 2
+    ts1.max_n = 2
     assert sorted(bigrams) == sorted(ts1.ngrams())
 
 
 def test_match(examples1, ts1):
-    train_examples = [
-        example + example for example in examples1
-    ]
+    train_examples = [example + example for example in examples1]
     match = OverlapyNgramMatcher(ts1.ngrams())
     matched = match(train_examples)
-    assert matched == {'123': [0, 0, 1, 1, 2, 2], '234': [0, 0, 1, 1], '345': [0, 0]}
+    assert matched == {"123": [0, 0, 1, 1, 2, 2], "234": [0, 0, 1, 1], "345": [0, 0]}

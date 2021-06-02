@@ -3,11 +3,15 @@ import collections
 from stringology.ac import AhoCorasick
 from stringology.ngrams import all_ngrams
 
+__version__ = "0.0.1"
+__author__ = "Ruben Branco, Luís Gomes"
+__copyright__ = "copyright © 2021, Ruben Branco, Luís Gomes, all rights reserved"
+
 
 def get_percentile(values, percentile):
     values.sort()
     i = int(len(values) * percentile / 100)
-    return values[min(i, len(values)-1)]
+    return values[min(i, len(values) - 1)]
 
 
 class OverlapyTestSet:
