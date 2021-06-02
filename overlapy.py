@@ -4,56 +4,47 @@ from stringology.ac import AhoCorasick
 from stringology.ngrams import all_ngrams
 
 
+def get_percentile(values, percentile):
+    values.sort()
+    i = int(len(values) * percentile / 100)
+    return values[min(i, len(values)-1)]
+
+
 class OverlapyTestSet:
-    def __init__(self, name, examples=None):
+    def __init__(self, name, min_n=8, max_n=13, percentile=5, examples=None):
+        assert isinstance(min_n, int) and isinstance(max_n, int)
+        assert 1 <= min_n <= max_n
+        assert 0 <= percentile <= 100
         self.name = name
+        self.min_n = min_n
+        self.max_n = max_n
+        self.percentile = percentile
         self.examples = examples or []
 
     def add_example(self, *seqs):
         self.examples.append(seqs)
 
-    def compute_n(self, min_n=8, max_n=13, percentile=5):
-        seq_lens = [len(seq) for example in self.examples for seq in example]
-        seq_lens.sort()
-        pos = int(len(seq_lens) * percentile / 100)
-        return min(max(min_n, seq_lens[pos]), max_n)
-
-    def ngrams(self, n):
+    def seqs(self):
         for example in self.examples:
-            for seq in example:
-                yield from all_ngrams(seq, minn=n, maxn=n)
+            yield from example
+
+    def compute_n(self):
+        hist = sorted(map(len, self.seqs()))
+        return min(max(self.min_n, get_percentile(hist, self.percentile)), self.max_n)
+
+    def ngrams(self):
+        n = self.compute_n()
+        for seq in self.seqs():
+            yield from all_ngrams(seq, minn=n, maxn=n)
 
 
-class OverlapyTrainSetLoader:
-    def __init__(self, name):
-        self.name = name
+class OverlapyNgramMatcher:
+    def __init__(self, ngrams: set):
+        self.ac = AhoCorasick(ngrams)
 
-    def examples(self):
-        raise NotImplemented
-
-
-class OverlapyNgramIndex:
-    def __init__(self, min_n=8, max_n=13):
-        self.min_n = min_n
-        self.max_n = max_n
-        self.ac = None
-        self.ngrams = set()
-
-    def add_testset(self, testset, min_n=None, max_n=None):
-        assert self.ngrams is not None
-        n = testset.compute_n(
-            self.min_n if min_n is None else min_n,
-            self.max_n if max_n is None else max_n,
-        )
-        self.ngrams.update(testset.ngrams(n))
-
-    def build_index(self):
-        self.ac = AhoCorasick(self.ngrams)
-        self.ngrams = None
-
-    def match(self, trainset):
+    def __call__(self, examples):
         matches = collections.defaultdict(list)
-        for i, example in enumerate(trainset.examples()):
-            for ngram, position in self.ac(example):
+        for i, example in enumerate(examples):
+            for ngram, _ in self.ac(example):
                 matches[ngram].append(i)
         return matches
