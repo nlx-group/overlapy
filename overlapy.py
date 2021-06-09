@@ -54,11 +54,21 @@ class OverlapyTestSet:
         return values[min(i, len(values) - 1)]
 
     def compute_n(self):
+        """
+        Compute the optimal size of N-Grams for data contamination studies, for this testset.
+
+        Based on the methodology set forth by:
+        Brown, Tom B., et al. "Language models are few-shot learners." arXiv preprint arXiv:2005.14165 (2020).
+        https://arxiv.org/abs/2005.14165
+        """
         hist = sorted(map(len, self.examples))
         n = OverlapyTestSet.get_percentile(hist, self.percentile)
         return min(max(self.min_n, n), self.max_n)
 
     def ngrams(self):
+        """
+        Compute ngrams of size N (see compute_n()) for each example.
+        """
         n = self.compute_n()
         for example in self.examples:
             yield from all_ngrams(example, minn=n, maxn=n)
@@ -73,6 +83,10 @@ class OverlapyTestSet:
         return iter(self.examples)
 
     def get_matches(self, matches):
+        """
+        Given a dictionary of matches, retrieve the matched examples, together with
+        the matched ngram and position in the sequence.
+        """
         ac = AhoCorasick(matches.keys())
 
         for i, example in enumerate(self.examples):
@@ -93,7 +107,7 @@ class OverlapyNgramMatcher:
 
 
 class Overlapy:
-    def __init__(self, testsets, dataset, tokenizer, n_workers=cpu_count()):
+    def __init__(self, testsets : list, dataset : Iterable, tokenizer, n_workers=cpu_count()):
         assert n_workers <= cpu_count()
         self.dataset = dataset
         self.testsets = testsets
@@ -104,6 +118,11 @@ class Overlapy:
         self.n_workers = n_workers
 
     def _calculate_chunk_matches(self, args):
+        """
+        Calculates matches between the testset ngrams and a chunk of the given dataset.
+
+        This function is executed by each worker from a pool of workers (processes).
+        """
         matches = collections.defaultdict(list)
         idxs, n_worker = args
         matcher = OverlapyNgramMatcher(self.testset_ngrams)
@@ -118,6 +137,11 @@ class Overlapy:
         return matches
 
     def run(self):
+        """
+        Calculates ngram matches between the supplied dataset and the testsets, in a parallel manner.
+
+        A pool of workers is leveraged to calculate matches between different chunks of the dataset.
+        """
         pool = Pool(self.n_workers)
         matches = collections.defaultdict(list)
 
@@ -143,7 +167,17 @@ class Overlapy:
 
 
 def list_split(lst, sections):
-    # https://stackoverflow.com/a/2135920
+    """
+    Splits a list into N sections. From https://stackoverflow.com/a/2135920.
+
+    Examples:
+
+    >>> list_split(list(range(10)), 3)
+    [[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+    >>> list_split(list(range(20)), 4)
+    [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19]]
+    """
     k, m = divmod(len(lst), sections)
     return [
         lst[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(sections)
