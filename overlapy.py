@@ -107,7 +107,9 @@ class OverlapyNgramMatcher:
 
 
 class Overlapy:
-    def __init__(self, testsets : list, dataset : Iterable, tokenizer, n_workers=cpu_count()):
+    def __init__(
+        self, testsets: list, dataset: Iterable, tokenizer, n_workers=cpu_count()
+    ):
         assert n_workers <= cpu_count()
         self.dataset = dataset
         self.testsets = testsets
