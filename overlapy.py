@@ -72,8 +72,8 @@ class OverlapyTestSet:
     def __iter__(self):
         return iter(self.examples)
 
-    def get_matches(self, dirty_dict):
-        ac = AhoCorasick(dirty_dict.keys())
+    def get_matches(self, matches):
+        ac = AhoCorasick(matches.keys())
 
         for i, example in enumerate(self.examples):
             for ngram, position in ac(example):
