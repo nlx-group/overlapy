@@ -18,11 +18,7 @@ def tokenizer(s):
     # Tokenizer used in https://arxiv.org/abs/2005.14165
     # Tokenize by whitespace, allow only alphanumeric characters
     # And lowercase all words
-    return [
-        word.lower() for word in
-        nltk.word_tokenize(s)
-        if word.isalnum()
-    ]
+    return [word.lower() for word in nltk.word_tokenize(s) if word.isalnum()]
 
 
 # The next three functions transform a dataset example into sequences of tokens.
@@ -33,6 +29,7 @@ def tokenizer(s):
 # As such we tokenize the 2 possible pairings, as we can have 2 possible overlaps:
 #    1. Goal + Solution 1
 #    2. Goal + Solution 2
+
 
 def piqa_example_to_tokens(example):
     tokens = []
@@ -45,7 +42,9 @@ def piqa_example_to_tokens(example):
 # And then create an OverlapyTestSet object
 
 piqa = load_dataset("piqa")
-examples = list(chain(*[piqa_example_to_tokens(example) for example in piqa["validation"]]))
+examples = list(
+    chain(*[piqa_example_to_tokens(example) for example in piqa["validation"]])
+)
 piqa_testset = OverlapyTestSet("piqa", examples=examples)
 print("PIQA Testset")
 print(f"N value: {piqa_testset.compute_n()}")
@@ -57,6 +56,7 @@ print(f"# NGrams: {len(set(map(tuple, list(piqa_testset.ngrams()))))}")
 # However, HuggingFace Dataset's __getitem__ returns a dictionary, and the text is
 # Stored in the key "text". As such, we define a wrapper that receives a HF Dataset
 # And the __getitem__ receives an idx, accesses the dataset idx and selects the "text" key value
+
 
 class HuggingFaceDatasetWrapper:
     def __init__(self, ds):

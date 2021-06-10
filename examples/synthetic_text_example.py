@@ -25,7 +25,9 @@ def tokenizer(s):
 
 # We'll override the parameter min_n and set it to 1 as we want the ngram value to be allowed
 # to be less than 8. The testset examples were constructed for it to be 4, actually.
-testset = OverlapyTestSet("test", min_n=1, examples=[tokenizer(s) for s in testset_examples])
+testset = OverlapyTestSet(
+    "test", min_n=1, examples=[tokenizer(s) for s in testset_examples]
+)
 print(f"N value: {testset.compute_n()}")
 print(f"# NGrams: {len(set(map(tuple, list(testset.ngrams()))))}")
 
