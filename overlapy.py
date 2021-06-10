@@ -24,8 +24,8 @@ try:
 
 except ImportError:
 
-    def tqdm(*args, **kwargs):
-        return args
+    def tqdm(iterable, **kwargs):
+        return iterable
 
 
 __version__ = "0.0.1"
