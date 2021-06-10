@@ -86,6 +86,9 @@ class OverlapyTestSet:
         """
         Given a dictionary of matches, retrieve the matched examples, together with
         the matched ngram and position in the sequence.
+
+        The structure of the output is the following:
+        Example ID, Ngram, Match position within example sequence.
         """
         ac = AhoCorasick(matches.keys())
 
