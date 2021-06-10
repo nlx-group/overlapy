@@ -95,4 +95,9 @@ matches = overlapy.run()
 # OpenWebText
 
 # The output follows the structure: Example ID, Ngram, Match position within example sequence
+# Since for each testset example may yield more than one example, because of the different
+# pairings created from several input segments (Q+A1, Q+A2, ...), it may be helpful to
+# Create a lookup dictionary that maps the supplied sequence IDs to the original example IDs
+# e.g. CSQA creates 5 sequences from each example. As such, content from example 1 is
+# ID 0, 1, 2, 3, 4 in the supplied examples to OverlapyTestSet
 print(f"PIQA Matches: {list(piqa_testset.get_matches(matches))}")
