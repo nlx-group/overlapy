@@ -52,18 +52,19 @@ print(f"# NGrams: {len(set(map(tuple, list(piqa_testset.ngrams()))))}")
 
 
 # We're defining a wrapper for a HuggingFace dataset to make it compatible with overlapy.
-# Overlapy expects __getitem__ to return the example's text.
+# Overlapy expects __getitem__ to return the example's text as ngrams.
 # However, HuggingFace Dataset's __getitem__ returns a dictionary, and the text is
 # Stored in the key "text". As such, we define a wrapper that receives a HF Dataset
 # And the __getitem__ receives an idx, accesses the dataset idx and selects the "text" key value
-
+# and tokenizes it
 
 class HuggingFaceDatasetWrapper:
-    def __init__(self, ds):
+    def __init__(self, ds, tokenizer):
         self.ds = ds
+        self.tokenizer = tokenizer
 
     def __getitem__(self, idx):
-        return self.ds[idx]["text"]
+        return self.tokenizer(self.ds[idx]["text"])
 
     def __len__(self):
         return len(self.ds)
@@ -73,18 +74,16 @@ class HuggingFaceDatasetWrapper:
 # This language modeling dataset was used in models such as the GPT series and RoBERTa.
 dataset = load_dataset("openwebtext")["train"]
 
-# We create an Overlapy object, handing four arguments:
+# We create an Overlapy object, handing three arguments:
 #   * Testsets: A list of OverlapyTestSet objects that we want to study.
 #   * Dataset: Dataset we want to calculate collisions with
-#   * Tokenizer: Tokenization function
 #   * n_workers: Number of worker processes to use
 # It's advisable to stay below 32 workers for HuggingFace datasets.
 # In our experience, more than that leads to race conditions and
 # it permanently stops.
 overlapy = Overlapy(
     testsets=[piqa_testset],
-    dataset=HuggingFaceDatasetWrapper(dataset),
-    tokenizer=tokenizer,
+    dataset=HuggingFaceDatasetWrapper(dataset, tokenizer),
     n_workers=32,
 )
 # Let's run and get the matches

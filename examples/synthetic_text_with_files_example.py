@@ -31,7 +31,7 @@ class SyntheticPreTrainingDataset:
         # Here we offer a simple example where each file has just one sentence
         # But the directory structure and file structure can be arbitrarily complex
         with open(join("files", f"pretraining_dataset.{idx}.txt")) as fr:
-            return fr.read().rstrip()
+            return tokenizer(fr.read().rstrip())
 
     def __len__(self):
         # We could list the directory
@@ -39,15 +39,13 @@ class SyntheticPreTrainingDataset:
         return 5
 
 
-# We create an Overlapy object, handing four arguments:
+# We create an Overlapy object, handing three arguments:
 #   * Testsets: A list of OverlapyTestSet objects that we want to study.
 #   * Dataset: Dataset we want to calculate collisions with
-#   * Tokenizer: Tokenization function
 #   * n_workers: Number of worker processes to use
 overlapy = Overlapy(
     testsets=[testset],
     dataset=SyntheticPreTrainingDataset(),
-    tokenizer=tokenizer,
     n_workers=2,
 )
 # Let's run and get the matches

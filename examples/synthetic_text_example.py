@@ -31,15 +31,13 @@ testset = OverlapyTestSet(
 print(f"N value: {testset.compute_n()}")
 print(f"# NGrams: {len(set(map(tuple, list(testset.ngrams()))))}")
 
-# We create an Overlapy object, handing four arguments:
+# We create an Overlapy object, handing three arguments:
 #   * Testsets: A list of OverlapyTestSet objects that we want to study.
 #   * Dataset: Dataset we want to calculate collisions with
-#   * Tokenizer: Tokenization function
 #   * n_workers: Number of worker processes to use
 overlapy = Overlapy(
     testsets=[testset],
-    dataset=pretraining_dataset,
-    tokenizer=tokenizer,
+    dataset=[tokenizer(s) for s in pretraining_dataset],
     n_workers=2,
 )
 # Let's run and get the matches

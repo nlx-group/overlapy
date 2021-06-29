@@ -111,7 +111,7 @@ class OverlapyNgramMatcher:
 
 class Overlapy:
     def __init__(
-        self, testsets: list, dataset: Iterable, tokenizer, n_workers=cpu_count()
+        self, testsets: list, dataset: Iterable, n_workers=cpu_count()
     ):
         assert n_workers <= cpu_count()
         self.dataset = dataset
@@ -119,7 +119,6 @@ class Overlapy:
         self.testset_ngrams = set(
             map(tuple, chain(*[list(testset.ngrams()) for testset in testsets]))
         )
-        self.tokenizer = tokenizer
         self.n_workers = n_workers
 
     def _calculate_chunk_matches(self, args):
@@ -135,8 +134,7 @@ class Overlapy:
         for idx in tqdm(
             idxs, total=len(idxs), position=n_worker + 1, desc=f"Worker #{n_worker}"
         ):
-            text = self.tokenizer(self.dataset[idx])
-            matched = matcher([text])
+            matched = matcher([self.dataset[idx]])
             for ngram, positions in matched.items():
                 matches[ngram].extend([idx] * len(positions))
         return matches
