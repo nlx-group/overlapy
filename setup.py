@@ -9,7 +9,7 @@ def read(path):
 setup(
     name="overlapy",
     version="0.0.1",
-    description="Library to help compute overlap ",
+    description="Library to help compute textual overlap.",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     url="https://github.com/nlx-group/overlapy",
@@ -24,6 +24,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
     ],
+    install_requires=["stringology"],
     keywords="text tool",
     package_dir={"": "."},
     py_modules=["overlapy"],
